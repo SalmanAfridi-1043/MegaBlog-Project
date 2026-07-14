@@ -8,7 +8,7 @@ import RTE from "./RTE";
 import Select from "./Select";
 import Login from "./Login";
 import Signup from "./Signup";
-import PostFrom from "./post-form/PostForm.jsx";
+import PostForm from "./post-form/PostForm.jsx";
 import PostCard from "./PostCard.jsx";
 import Input from "./Input.jsx";
 
@@ -18,7 +18,7 @@ export {
   Input,
   Container,
   LogoutBtn,
-  PostFrom,
+  PostForm,
   PostCard,
   Logo,
   Button,

@@ -28,7 +28,7 @@ export class AuthService {
   }
 
   async login({ email, password }) {
-    return await this.account.createEmailSession(email, password);
+    return await this.account.createEmailPasswordSession(email, password);
   }
 
   async getCurrentUser() {
@@ -42,7 +42,23 @@ export class AuthService {
   }
 
   async logout() {
-    return await this.account.deleteSessions("current");
+    return await this.account.deleteSession("current");
+  }
+
+  async updateName(name) {
+    return await this.account.updateName(name);
+  }
+
+  async updateEmail(email, password) {
+    return await this.account.updateEmail(email, password);
+  }
+
+  async updatePassword(newPassword, oldPassword) {
+    return await this.account.updatePassword(newPassword, oldPassword);
+  }
+
+  async deleteAllSessions() {
+    return await this.account.deleteSessions();
   }
 }
 

@@ -13,6 +13,8 @@ import {
   Login,
   Post,
   Signup,
+  Profile,
+  Settings,
 } from "./Pages";
 import AuthLayout from "./components/AuthLayout";
 
@@ -71,6 +73,22 @@ const router = createBrowserRouter([
       {
         path: "/post/:slug",
         element: <Post />,
+      },
+      {
+        path: "/profile",
+        element: (
+          <AuthLayout authentication>
+            <Profile />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: "/settings",
+        element: (
+          <AuthLayout authentication>
+            <Settings />
+          </AuthLayout>
+        ),
       },
     ],
   },

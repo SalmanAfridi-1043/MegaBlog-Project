@@ -1,5 +1,5 @@
 import conf from "../conf/conf.js";
-import { Client, ID, Storage, Databases, Query } from "appwrite";
+import { Client, ID, Storage, Databases, Query, Permission, Role } from "appwrite";
 
 export class Service {
   client = new Client();
@@ -14,7 +14,7 @@ export class Service {
     this.bucket = new Storage(this.client);
   }
 
-  async createPost({ title, slug, content, featuredImage, userId, status }) {
+  async createPost({ title, slug, content, featuredImage, userID, status }) {
     return await this.databases.createDocument(
       conf.appWriteDatabaseId,
       conf.appWriteCollectionId,
@@ -23,7 +23,7 @@ export class Service {
         title,
         content,
         featuredImage,
-        userId,
+        userID,
         status,
       },
     );
@@ -68,12 +68,38 @@ export class Service {
     );
   }
 
+  // delete all posts (and their images) belonging to a userID
+  async deleteUserPosts(userID) {
+    const res = await this.databases.listDocuments(
+      conf.appWriteDatabaseId,
+      conf.appWriteCollectionId,
+      [Query.equal("userID", userID)],
+    );
+    const posts = res.documents || [];
+    for (const post of posts) {
+      // delete featured image from storage
+      if (post.featuredImage) {
+        try { await this.deleteFile(post.featuredImage); } catch (_) {}
+      }
+      // delete the document
+      await this.databases.deleteDocument(
+        conf.appWriteDatabaseId,
+        conf.appWriteCollectionId,
+        post.$id,
+      );
+    }
+    return posts.length;
+  }
+
   // file upload service
   async uploadFile(file) {
     return await this.bucket.createFile(
       conf.appWriteBucketId,
       ID.unique(),
       file,
+      [
+        Permission.read(Role.any()),
+      ]
     );
   }
 
@@ -85,7 +111,8 @@ export class Service {
 
   // get file preview
   getFilePreview(fileId) {
-    return this.bucket.getFilePreview(conf.appWriteBucketId, fileId);
+    if (!fileId) return "";
+    return this.bucket.getFileView(conf.appWriteBucketId, fileId);
   }
 }
 

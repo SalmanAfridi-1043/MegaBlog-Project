@@ -2,7 +2,7 @@ import { useState } from "react";
 import authService from "../appwrite/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../store/authSlice";
-import { Button, Logo, Input } from "./index";
+import { Input, Logo } from "./index";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 
@@ -11,10 +11,11 @@ function Signup() {
   const dispatch = useDispatch();
   const { register, handleSubmit } = useForm();
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const create = async (data) => {
     setError("");
-
+    setLoading(true);
     try {
       const created = await authService.createAccount(data);
       if (created) {
@@ -22,75 +23,92 @@ function Signup() {
         if (currentUser) dispatch(login(currentUser));
         navigate("/");
       }
-    } catch (error) {
-      setError(error.message);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center">
-      <div
-        className={`mx-auto w-full max-w-lg bg-gray-100 rounded-xl p-10 border border-black/10`}
-      >
-        <div className="mb-2 flex justify-center">
-          <span className="inline-block w-full max-w-25">
-            <Logo width="100%" />
-          </span>
-        </div>
+    <div className="flex items-center justify-center w-full min-h-[80vh] py-12 px-4">
+      <div className="w-full max-w-md">
 
-        <h2 className="text-center text-2xl font-bold leading-tight">
-          Sign up to create account
-        </h2>
-        <p className="mt-2 text-center text-base text-black/60">
-          Already have an account?&nbsp;
-          <Link
-            to="/login"
-            className="font-medium text-primary transition-all duration-200 hover:underline"
-          >
-            Sign In
-          </Link>
-        </p>
+        {/* Card */}
+        <div className="bg-slate-900/70 backdrop-blur-md rounded-3xl p-8 sm:p-10 border border-slate-800/80 shadow-2xl shadow-slate-950/50">
 
-        {error && <p className="text-red-600 mt-8 text-center">{error}</p>}
+          {/* Logo */}
+          <div className="flex justify-center mb-6">
+            <Logo />
+          </div>
 
-        <form onSubmit={handleSubmit(create)}>
-          <div className="space-y-5">
+          {/* Heading */}
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-extrabold text-white tracking-tight">Create your account</h1>
+            <p className="mt-2 text-sm text-slate-400">
+              Already have an account?{" "}
+              <Link to="/login" className="font-semibold text-violet-400 hover:text-violet-300 transition-colors duration-150">
+                Sign in
+              </Link>
+            </p>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="flex items-start gap-2 text-rose-400 bg-rose-500/10 border border-rose-500/20 px-4 py-3 rounded-xl text-sm font-medium mb-6">
+              <span className="shrink-0 mt-0.5">⚠</span>
+              <span>{error}</span>
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit(create)} className="flex flex-col gap-5">
             <Input
-              label="Full Name: "
-              placeholder="Enter your full name"
-              {...register("name", {
-                required: true,
-              })}
+              label="Full Name"
+              placeholder="Your full name"
+              {...register("name", { required: true })}
             />
-
             <Input
-              label="Email: "
+              label="Email"
               type="email"
-              placeHolder="Enter your email"
+              placeholder="you@example.com"
               {...register("email", {
                 required: true,
                 validate: {
-                  matchPatern: (value) =>
+                  matchPattern: (value) =>
                     /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
-                    "Email address must be a valid address",
+                    "Enter a valid email address",
                 },
               })}
-            ></Input>
-
+            />
             <Input
-              label="Password: "
+              label="Password"
               type="password"
-              placeholder="Enter your password"
-              {...register("password", {
-                required: true,
-              })}
+              placeholder="Min. 8 characters"
+              {...register("password", { required: true, minLength: 8 })}
             />
 
-            <Button type="submit" className="w-full">
-              Create Account
-            </Button>
-          </div>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-xl font-semibold text-sm text-white bg-linear-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 shadow-lg shadow-violet-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-1"
+            >
+              {loading ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  Creating account…
+                </>
+              ) : "Create Account"}
+            </button>
+
+            <p className="text-xs text-slate-600 text-center mt-1">
+              By signing up you agree to our terms of service.
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );
