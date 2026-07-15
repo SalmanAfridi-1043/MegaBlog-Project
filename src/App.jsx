@@ -26,7 +26,7 @@ function App() {
   return !loading ? (
     <div className="min-h-screen flex flex-col justify-between bg-slate-900 text-slate-100 font-sans antialiased">
       <Header />
-      <main className="flex-grow pt-16">
+      <main className="grow pt-16">
         <Outlet />
       </main>
       <Footer />
