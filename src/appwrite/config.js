@@ -1,5 +1,13 @@
 import conf from "../conf/conf.js";
-import { Client, ID, Storage, Databases, Query, Permission, Role } from "appwrite";
+import {
+  Client,
+  ID,
+  Storage,
+  Databases,
+  Query,
+  Permission,
+  Role,
+} from "appwrite";
 
 export class Service {
   client = new Client();
@@ -79,7 +87,12 @@ export class Service {
     for (const post of posts) {
       // delete featured image from storage
       if (post.featuredImage) {
-        try { await this.deleteFile(post.featuredImage); } catch (_) {}
+        try {
+          await this.deleteFile(post.featuredImage);
+        } catch (error) {
+          console.log(error.message);
+          /* ignore if file already gone */
+        }
       }
       // delete the document
       await this.databases.deleteDocument(
@@ -97,9 +110,7 @@ export class Service {
       conf.appWriteBucketId,
       ID.unique(),
       file,
-      [
-        Permission.read(Role.any()),
-      ]
+      [Permission.read(Role.any())],
     );
   }
 
